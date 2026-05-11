@@ -1,0 +1,59 @@
+# ═══════════════════════════════════════════════
+# Docker Compose - Production VPS
+# Lance l'app Laravel + PostgreSQL
+# ═══════════════════════════════════════════════
+
+services:
+  # ── Service applicatif (Laravel + Apache) ──
+  app:
+    build: .
+    container_name: laravel-app
+    ports:
+      - "80:80"
+    environment:
+      # Laravel
+      APP_NAME: "Films & Locations"
+      APP_ENV: production
+      APP_DEBUG: "false"
+      APP_URL: http://localhost
+
+      # PostgreSQL (doit correspondre au service db ci-dessous)
+      DB_CONNECTION: pgsql
+      DB_HOST: db
+      DB_PORT: 5432
+      DB_DATABASE: laravel
+      DB_USERNAME: laravel
+      DB_PASSWORD: secret
+
+      # Queues synchrones en prod simple (pas de Redis)
+      QUEUE_CONNECTION: sync
+      CACHE_STORE: file
+      SESSION_DRIVER: file
+    depends_on:
+      db:
+        condition: service_healthy
+    restart: unless-stopped
+
+  # ── Service base de données (PostgreSQL) ──
+  db:
+    image: postgres:16-alpine
+    container_name: laravel-db
+    environment:
+      POSTGRES_DB: laravel
+      POSTGRES_USER: laravel
+      POSTGRES_PASSWORD: secret
+    volumes:
+      # Persiste les données PostgreSQL entre les redémarrages
+      - pgdata:/var/lib/postgresql/data
+    ports:
+      - "5432:5432"
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U laravel"]
+      interval: 5s
+      timeout: 5s
+      retries: 5
+    restart: unless-stopped
+
+# Volume nommé pour la persistance des données PostgreSQL
+volumes:
+  pgdata:

@@ -2,11 +2,13 @@
 
 namespace App\Http\Controllers;
 
-use App\Models\Location;
+use App\Jobs\UpdateUpvotesCountJob;
 use App\Models\Film;
+use App\Models\Location;
 use Illuminate\Http\Request;
-use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Log;
 
 class LocationController extends Controller
 {
@@ -16,6 +18,7 @@ class LocationController extends Controller
     public function index()
     {
         $locations = Location::with(['film', 'user'])->get();
+
         return view('location.index', compact('locations'));
     }
 
@@ -25,6 +28,7 @@ class LocationController extends Controller
     public function create()
     {
         $films = Film::all();
+
         return view('location.create', compact('films'));
     }
 
@@ -40,7 +44,7 @@ class LocationController extends Controller
             'city' => 'required|string|max:255',
             'country' => 'required|string|max:255',
             'description' => 'nullable|string',
-            'upvotes_count' => 'required|integer',
+            'upvotes_count' => 'nullable|integer',
         ]);
 
         Location::create([
@@ -50,7 +54,7 @@ class LocationController extends Controller
             'city' => $request->city,
             'country' => $request->country,
             'description' => $request->description,
-            'upvotes_count' => $request->upvotes_count,
+            'upvotes_count' => 0,
         ]);
 
         return redirect()->route('location.index');
@@ -70,7 +74,14 @@ class LocationController extends Controller
     public function edit(string $id)
     {
         $location = Location::findOrFail($id);
+
+        // Vérification des permissions : Admin OU Auteur
+        if (! Auth::user()->is_admin && $location->user_id !== Auth::id()) {
+            abort(403, "Vous n'êtes pas l'auteur de cette location.");
+        }
+
         $films = Film::all();
+
         return view('location.create', compact('location', 'films'));
     }
 
@@ -79,18 +90,29 @@ class LocationController extends Controller
      */
     public function update(Request $request, string $id)
     {
+        $location = Location::findOrFail($id);
+
+        if (! Auth::user()->is_admin && $location->user_id !== Auth::id()) {
+            abort(403);
+        }
+
         $request->validate([
             'film_id' => 'required|integer',
-            'user_id' => 'required|integer',
             'name' => 'required|string|max:255',
             'city' => 'required|string|max:255',
             'country' => 'required|string|max:255',
             'description' => 'nullable|string',
-            'upvotes_count' => 'required|integer',
+            'upvotes_count' => 'nullable|integer',
         ]);
 
-        $location = Location::findOrFail($id);
-        $location->update($request->all());
+        $location->update($request->only([
+            'film_id',
+            'name',
+            'city',
+            'country',
+            'description',
+            'upvotes_count',
+        ]));
 
         return redirect()->route('location.index');
     }
@@ -101,6 +123,12 @@ class LocationController extends Controller
     public function destroy(string $id)
     {
         $location = Location::findOrFail($id);
+
+        // Vérification des permissions : Admin OU Auteur
+        if (! Auth::user()->is_admin && $location->user_id !== Auth::id()) {
+            abort(403);
+        }
+
         $location->delete();
 
         return redirect()->route('location.index');
@@ -111,13 +139,16 @@ class LocationController extends Controller
         $userId = Auth::id();
         $locationId = $id;
 
+        Log::info("Tentative de vote par l'utilisateur $userId pour la location $locationId");
+
         // Vérifier si l'utilisateur a déjà voté
         $alreadyVoted = DB::table('location_votes')
             ->where('user_id', $userId)
             ->where('location_id', $locationId)
             ->exists();
 
-        if (!$alreadyVoted) {
+        if (! $alreadyVoted) {
+            Log::info('Vote autorisé. Enregistrement en base...');
             // Insérer le vote
             DB::table('location_votes')->insert([
                 'user_id' => $userId,
@@ -125,8 +156,11 @@ class LocationController extends Controller
                 'created_at' => now(),
             ]);
 
-            // Optionnel : Incrémenter le compteur de cache dans la table locations
-            Location::where('id', $locationId)->increment('upvotes_count');
+            // 🔥 dispatch du job
+            Log::info("Dispatch du job UpdateUpvotesCountJob pour la location $locationId");
+            UpdateUpvotesCountJob::dispatch((int) $id);
+        } else {
+            Log::info("Vote refusé : l'utilisateur a déjà voté pour ce lieu.");
         }
 
         return redirect()->back();

@@ -47,7 +47,7 @@
 
                                     <!-- Modifier -->
                                     @auth
-                                        @if(auth()->user()->is_admin)
+                                        @if(auth()->user()->is_admin || $location->user_id === auth()->id())
                                             <a href="{{ route('location.edit', $location->id) }}"
                                                 class="bg-yellow-400 text-black px-3 py-1 rounded hover:bg-yellow-500">
                                                 Modifier
@@ -57,7 +57,7 @@
 
                                     <!-- Supprimer -->
                                     @auth
-                                        @if(auth()->user()->is_admin)
+                                        @if(auth()->user()->is_admin || $location->user_id === auth()->id())
                                             <form action="{{ route('location.destroy', $location->id) }}" method="POST">
                                                 @csrf
                                                 @method('DELETE')

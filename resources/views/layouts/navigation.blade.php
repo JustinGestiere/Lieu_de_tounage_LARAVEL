@@ -26,6 +26,12 @@
                         {{ __('Location') }}
                     </x-nav-link>
                 </div>
+                <div class="hidden space-x-8 sm:-my-px sm:ms-10 sm:flex">
+                    <x-nav-link :href="route('payment.index')" :active="request()->routeIs('payment.index')">
+                        {{ __('Premium') }}
+                    </x-nav-link>
+                </div>
+
             </div>
 
             <!-- Settings Dropdown -->
@@ -51,6 +57,20 @@
                         <x-dropdown-link :href="route('profile.edit')">
                             {{ __('Profile') }}
                         </x-dropdown-link>
+
+                        <!-- Stripe Subscription -->
+                        @if (Auth::user()->is_subscribed)
+                            <x-dropdown-link href="#">
+                                {{ __('Premium 👑') }}
+                            </x-dropdown-link>
+                        @else
+                            <form method="POST" action="{{ route('subscribe') }}">
+                                @csrf
+                                <button type="submit" class="block w-full text-start px-4 py-2 text-sm text-gray-700 dark:text-gray-200 hover:bg-gray-100 dark:hover:bg-gray-800">
+                                    💳 Payer 5€ / mois
+                                </button>
+                            </form>
+                        @endif
 
                         <!-- Authentication -->
                         <form method="POST" action="{{ route('logout') }}">
@@ -98,6 +118,25 @@
                 {{ __('Location') }}
             </x-responsive-nav-link>
         </div>
+
+        <!-- Si abonné → accès au service payant -->
+        @if (Auth::user()->is_subscribed)
+            <div class="pt-2 pb-3 space-y-1">
+                <x-responsive-nav-link href="#">
+                    {{ __('Accès Premium 👑') }}
+                </x-responsive-nav-link>
+            </div>
+        @else
+            <!-- Si non abonné → bouton de paiement -->
+            <form method="POST" action="{{ route('subscribe') }}" class="mt-3 px-4">
+                @csrf
+                <button type="submit"
+                    class="w-full text-center py-2 px-4 rounded-md bg-purple-600 text-white hover:bg-purple-700">
+                    💳 Payer 5€ / mois
+                </button>
+            </form>
+        @endif
+
 
         <!-- Responsive Settings Options -->
         <div class="pt-4 pb-1 border-t border-gray-200 dark:border-gray-600">

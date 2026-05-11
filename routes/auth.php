@@ -9,7 +9,10 @@ use App\Http\Controllers\Auth\PasswordController;
 use App\Http\Controllers\Auth\PasswordResetLinkController;
 use App\Http\Controllers\Auth\RegisteredUserController;
 use App\Http\Controllers\Auth\VerifyEmailController;
+use App\Models\User;
+use GuzzleHttp\Client;
 use Illuminate\Support\Facades\Route;
+use Laravel\Socialite\Facades\Socialite;
 
 Route::middleware('guest')->group(function () {
     Route::get('register', [RegisteredUserController::class, 'create'])
@@ -56,4 +59,28 @@ Route::middleware('auth')->group(function () {
 
     Route::post('logout', [AuthenticatedSessionController::class, 'destroy'])
         ->name('logout');
+});
+
+Route::get('/auth/github', function () {
+    return Socialite::driver('github')->stateless()->redirect();
+
+});
+
+Route::get('/auth/github/callback', function () {
+    $githubUser = Socialite::driver('github')
+        ->stateless()
+        ->setHttpClient(new Client(['verify' => false]))
+        ->user();
+
+    $user = User::firstOrCreate(
+        ['email' => $githubUser->getEmail()],
+        [
+            'name' => $githubUser->getName() ?? $githubUser->getNickname(),
+            'password' => bcrypt(uniqid()), // obligatoire
+        ]
+    );
+
+    Auth::login($user);
+
+    return redirect('/dashboard');
 });

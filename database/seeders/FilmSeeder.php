@@ -9,6 +9,7 @@ use Illuminate\Database\Seeder;
 class FilmSeeder extends Seeder
 {
     use WithoutModelEvents;
+
     /**
      * Run the database seeds.
      */

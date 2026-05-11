@@ -13,6 +13,7 @@ class FilmController extends Controller
     public function index()
     {
         $films = Film::all();
+
         return view('film.index', compact('films'));
     }
 
@@ -58,6 +59,7 @@ class FilmController extends Controller
     public function edit(string $id)
     {
         $film = Film::findOrFail($id);
+
         return view('film.create', compact('film'));
     }
 

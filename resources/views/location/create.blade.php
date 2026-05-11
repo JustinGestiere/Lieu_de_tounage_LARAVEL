@@ -72,16 +72,6 @@
                         @enderror
                     </div>
 
-                    <div class="mb-4">
-                        <label class="block mb-1 text-black-700 dark:text-black-300">Votes</label>
-                        <input type="number" name="upvotes_count"
-                            value="{{ $location->upvotes_count ?? old('upvotes_count', 0) }}"
-                            class="w-full border p-2 rounded @error('upvotes_count') border-red-500 @enderror">
-                        @error('upvotes_count')
-                            <div class="text-red-500 text-sm">{{ $message }}</div>
-                        @enderror
-                    </div>
-
                     <button class="bg-green-500 text-white px-4 py-2 rounded hover:bg-green-600">
                         Enregistrer
                     </button>

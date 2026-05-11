@@ -1,0 +1,30 @@
+# Dépendances
+vendor/
+node_modules/
+
+# Git
+.git/
+.gitignore
+.gitattributes
+
+# Fichiers de dev
+.env
+.env.example
+.editorconfig
+.npmrc
+
+# Tests (pas besoin en prod)
+tests/
+phpunit.xml
+.github/
+
+# IDE
+.idea/
+.vscode/
+
+# Données locales
+storage/logs/*
+database/database.sqlite
+
+# Documentation
+README.md

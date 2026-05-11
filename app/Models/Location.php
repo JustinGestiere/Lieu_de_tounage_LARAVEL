@@ -2,13 +2,15 @@
 
 namespace App\Models;
 
+use Database\Factories\LocationFactory;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 
 class Location extends Model
 {
-    /** @use HasFactory<\Database\Factories\LocationFactory> */
+    /** @use HasFactory<LocationFactory> */
     use HasFactory;
+
     protected $fillable = [
         'film_id',
         'user_id',
@@ -20,6 +22,7 @@ class Location extends Model
     ];
 
     public $timestamps = false;
+
     protected function casts(): array
     {
         return [
