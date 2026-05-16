@@ -19,7 +19,7 @@ on:
 jobs:
   # ── JOB 1 : Tests ──
   tests:
-    name: Tests (PHP 8.3 + SQLite)
+    name: Tests (PHP 8.4 + SQLite)
     runs-on: ubuntu-latest
 
     steps:
@@ -31,9 +31,11 @@ jobs:
       - name: Setup PHP
         uses: shivammathur/setup-php@v2
         with:
-          php-version: '8.3'
+          php-version: '8.4'
           extensions: pdo_sqlite, sqlite3, bcmath, zip
           coverage: none
+      - name: Verify PHP version
+        run: php -v
 
       # Cache des dépendances Composer pour accélérer les builds
       - name: Cache Composer dependencies
@@ -86,7 +88,7 @@ jobs:
       - name: Setup PHP
         uses: shivammathur/setup-php@v2
         with:
-          php-version: '8.3'
+          php-version: '8.4'
 
       - name: Install Composer dependencies
         run: composer install --no-interaction --prefer-dist
@@ -109,3 +111,33 @@ jobs:
       # On ne la pousse pas (pas de docker push)
       - name: Build Docker image
         run: docker build -t laravel-app:ci .
+
+  # ── JOB 4 : Déploiement ──
+  deploy:
+    name: Deploy to Production
+    runs-on: ubuntu-latest
+    needs: [docker]
+    if: github.ref == 'refs/heads/main' || github.ref == 'refs/heads/master'
+
+    steps:
+      - name: Deploy to VPS via SSH
+        uses: appleboy/ssh-action@v1.0.3
+        with:
+          host: ${{ secrets.SSH_HOST }}
+          port: ${{ secrets.SSH_PORT }}
+          username: ${{ secrets.SSH_USER }}
+          key: ${{ secrets.SSH_KEY }}
+          script: |
+            # 1. Aller dans le dossier du projet
+            cd /srv/apps/reverse-proxy/apps/find-movie-location
+
+            # 2. Mettre à jour le code source (dans le sous-dossier code/)
+            cd code
+            git pull origin ${{ github.ref_name }}
+            cd ..
+
+            # 3. Relancer les conteneurs avec build si nécessaire
+            docker compose up -d --build
+
+            # 4. Nettoyage des images inutiles
+            docker image prune -f

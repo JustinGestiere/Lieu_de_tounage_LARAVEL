@@ -20,7 +20,7 @@ RUN npm run build
 # ═══════════════════════════════════════════════════════════
 # ÉTAPE 2 : Image PHP finale (Apache + extensions)
 # ═══════════════════════════════════════════════════════════
-FROM php:8.3-apache
+FROM php:8.4-apache
 
 # Active le module Apache mod_rewrite (nécessaire pour Laravel)
 RUN a2enmod rewrite
