@@ -19,7 +19,7 @@ on:
 jobs:
   # ── JOB 1 : Tests ──
   tests:
-    name: Tests (PHP 8.3 + SQLite)
+    name: Tests (PHP 8.4 + SQLite)
     runs-on: ubuntu-latest
 
     steps:
@@ -31,9 +31,11 @@ jobs:
       - name: Setup PHP
         uses: shivammathur/setup-php@v2
         with:
-          php-version: '8.3'
+          php-version: '8.4'
           extensions: pdo_sqlite, sqlite3, bcmath, zip
           coverage: none
+      - name: Verify PHP version
+        run: php -v
 
       # Cache des dépendances Composer pour accélérer les builds
       - name: Cache Composer dependencies
@@ -86,7 +88,7 @@ jobs:
       - name: Setup PHP
         uses: shivammathur/setup-php@v2
         with:
-          php-version: '8.3'
+          php-version: '8.4'
 
       - name: Install Composer dependencies
         run: composer install --no-interaction --prefer-dist
