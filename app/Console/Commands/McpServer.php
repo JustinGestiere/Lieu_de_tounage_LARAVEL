@@ -119,8 +119,8 @@ class McpServer extends Command
                         'id' => $id,
                         'error' => [
                             'code' => -32000,           // Code d'erreur serveur générique
-                            'message' => $e->getMessage()
-                        ]
+                            'message' => $e->getMessage(),
+                        ],
                     ];
                     fwrite(STDOUT, json_encode($errorResponse)."\n");
                 }
@@ -162,8 +162,8 @@ class McpServer extends Command
                     'serverInfo' => [
                         'name' => 'laravel-mcp',         // Nom de notre serveur
                         'version' => '1.0.0',
-                    ]
-                ]
+                    ],
+                ],
             ];
         }
 
@@ -197,7 +197,7 @@ class McpServer extends Command
                             'description' => 'Liste les films disponibles (titre, annee, id)',
                             'inputSchema' => [
                                 'type' => 'object',
-                                'properties' => (object)[],   // Pas de paramètres → objet vide
+                                'properties' => (object) [],   // Pas de paramètres → objet vide
                             ],
                         ],
 
@@ -244,10 +244,10 @@ class McpServer extends Command
                             [
                                 'type' => 'text',
                                 // On convertit la collection Eloquent en JSON lisible
-                                'text' => $films->toJson(JSON_PRETTY_PRINT)
-                            ]
-                        ]
-                    ]
+                                'text' => $films->toJson(JSON_PRETTY_PRINT),
+                            ],
+                        ],
+                    ],
                 ];
             }
 
@@ -263,8 +263,8 @@ class McpServer extends Command
                         'id' => $id,
                         'error' => [
                             'code' => -32602,       // Code JSON-RPC : paramètres invalides
-                            'message' => 'Invalid params: film_id is required'
-                        ]
+                            'message' => 'Invalid params: film_id is required',
+                        ],
                     ];
                 }
 
@@ -283,10 +283,10 @@ class McpServer extends Command
                             'content' => [
                                 [
                                     'type' => 'text',
-                                    'text' => "Film non trouve avec l'id: {$filmId}"
-                                ]
-                            ]
-                        ]
+                                    'text' => "Film non trouve avec l'id: {$filmId}",
+                                ],
+                            ],
+                        ],
                     ];
                 }
 
@@ -308,10 +308,10 @@ class McpServer extends Command
                                             'country' => $loc->country,
                                         ];
                                     })
-                                ], JSON_PRETTY_PRINT)
-                            ]
-                        ]
-                    ]
+                                ], JSON_PRETTY_PRINT),
+                            ],
+                        ],
+                    ],
                 ];
             }
 
@@ -321,8 +321,8 @@ class McpServer extends Command
                 'id' => $id,
                 'error' => [
                     'code' => -32601,
-                    'message' => "Tool not found: {$toolName}"
-                ]
+                    'message' => "Tool not found: {$toolName}",
+                ],
             ];
         }
 
@@ -337,8 +337,8 @@ class McpServer extends Command
                 'id' => $id,
                 'error' => [
                     'code' => -32601,       // Code JSON-RPC : méthode non trouvée
-                    'message' => 'Method not found'
-                ]
+                    'message' => 'Method not found',
+                ],
             ];
         }
 

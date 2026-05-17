@@ -4,7 +4,6 @@ use App\Console\Commands\McpServer;
 use App\Models\Film;
 use App\Models\Location;
 use App\Models\User;
-use ReflectionMethod;
 
 /*
 |--------------------------------------------------------------------------
@@ -26,6 +25,7 @@ function callMcpHandler(array $request): ?array
     $command = new McpServer();
     $reflection = new ReflectionMethod($command, 'handleRequest');
     $reflection->setAccessible(true);
+
     return $reflection->invoke($command, $request);
 }
 
