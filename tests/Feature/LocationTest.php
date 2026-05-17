@@ -3,6 +3,7 @@
 use App\Models\Film;
 use App\Models\Location;
 use App\Models\User;
+use Illuminate\Support\Facades\DB;
 
 /*
 |--------------------------------------------------------------------------
@@ -125,7 +126,7 @@ it('empêche le double vote', function () {
     // Deuxième vote (ne doit pas créer de doublon)
     $this->actingAs($user)->post("/location/{$location->id}/upvote");
 
-    $votesCount = \Illuminate\Support\Facades\DB::table('location_votes')
+    $votesCount = DB::table('location_votes')
         ->where('user_id', $user->id)
         ->where('location_id', $location->id)
         ->count();

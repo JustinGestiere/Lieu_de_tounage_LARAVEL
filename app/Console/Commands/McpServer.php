@@ -2,8 +2,8 @@
 
 namespace App\Console\Commands;
 
-use Illuminate\Console\Command;
 use App\Models\Film;
+use Illuminate\Console\Command;
 
 /**
  * Serveur MCP (Model Context Protocol) en lecture seule.
@@ -108,7 +108,7 @@ class McpServer extends Command
                 if ($response) {
                     // Écrit la réponse JSON sur stdout (sortie standard)
                     // Le client MCP lit cette ligne pour obtenir le résultat
-                    fwrite(STDOUT, json_encode($response) . "\n");
+                    fwrite(STDOUT, json_encode($response)."\n");
                 }
             } catch (\Exception $e) {
                 // En cas d'erreur inattendue, on renvoie une erreur JSON-RPC
@@ -122,7 +122,7 @@ class McpServer extends Command
                             'message' => $e->getMessage()
                         ]
                     ];
-                    fwrite(STDOUT, json_encode($errorResponse) . "\n");
+                    fwrite(STDOUT, json_encode($errorResponse)."\n");
                 }
             }
         }
@@ -157,11 +157,11 @@ class McpServer extends Command
                 'result' => [
                     'protocolVersion' => '2024-11-05',   // Version du protocole MCP supportée
                     'capabilities' => [
-                        'tools' => []                    // On déclare qu'on supporte les "tools"
+                        'tools' => [],                    // On déclare qu'on supporte les "tools"
                     ],
                     'serverInfo' => [
                         'name' => 'laravel-mcp',         // Nom de notre serveur
-                        'version' => '1.0.0'
+                        'version' => '1.0.0',
                     ]
                 ]
             ];
@@ -197,8 +197,8 @@ class McpServer extends Command
                             'description' => 'Liste les films disponibles (titre, annee, id)',
                             'inputSchema' => [
                                 'type' => 'object',
-                                'properties' => (object)[]   // Pas de paramètres → objet vide
-                            ]
+                                'properties' => (object)[],   // Pas de paramètres → objet vide
+                            ],
                         ],
 
                         // ── Outil 2 : get_locations_for_film ──
@@ -211,14 +211,14 @@ class McpServer extends Command
                                 'properties' => [
                                     'film_id' => [
                                         'type' => 'number',
-                                        'description' => 'ID du film'
-                                    ]
+                                        'description' => 'ID du film',
+                                    ],
                                 ],
-                                'required' => ['film_id']    // Ce paramètre est obligatoire
-                            ]
-                        ]
-                    ]
-                ]
+                                'required' => ['film_id'],    // Ce paramètre est obligatoire
+                            ],
+                        ],
+                    ],
+                ],
             ];
         }
 

@@ -1,8 +1,10 @@
 <?php
 
+use App\Console\Commands\McpServer;
 use App\Models\Film;
 use App\Models\Location;
 use App\Models\User;
+use ReflectionMethod;
 
 /*
 |--------------------------------------------------------------------------
@@ -21,7 +23,7 @@ use App\Models\User;
 // Helper pour appeler la méthode privée handleRequest
 function callMcpHandler(array $request): ?array
 {
-    $command = new \App\Console\Commands\McpServer();
+    $command = new McpServer();
     $reflection = new ReflectionMethod($command, 'handleRequest');
     $reflection->setAccessible(true);
     return $reflection->invoke($command, $request);
